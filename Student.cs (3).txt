@@ -1,0 +1,94 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+public class Student
+{
+    public int studentID { get; set; }
+    public string name { get; set; }
+    public string course { get; set; }
+    public double grade { get; set; }
+
+    // Constructor
+    public Student(int studentID, string name, string course, double grade)
+    {
+        this.studentID = studentID;
+        this.name = name;
+        this.course = course;
+        this.grade = grade;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string filePath = "students.txt";
+
+        // =============================
+        // TASK 1: Create and Write File
+        // =============================
+        List<Student> students = new List<Student>
+        {
+            new Student(101, "Kimmy", "BSIT", 89),
+            new Student(102, "Cici", "BSCS", 92),
+            new Student(103, "Nana", "BSIT", 75),
+            new Student(104, "Angela", "BSCS", 85),
+            new Student(105, "Balmond", "BSIT", 90)
+        };
+
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            foreach (var s in students)
+            {
+                writer.WriteLine($"{s.studentID},{s.name},{s.course},{s.grade}");
+            }
+        }
+
+        Console.WriteLine("File created and data written successfully.\n");
+
+        // =============================
+        // TASK 2: Read File and Use LINQ
+        // =============================
+        List<Student> studentList = File.ReadAllLines(filePath)
+            .Select(line =>
+            {
+                var parts = line.Split(',');
+                return new Student(
+                    int.Parse(parts[0]),
+                    parts[1],
+                    parts[2],
+                    double.Parse(parts[3])
+                );
+            })
+            .ToList();
+
+        // 1️⃣ Students with Grade > 85
+        Console.WriteLine("Students with Grade > 85");
+        var highGrades = studentList
+            .Where(s => s.grade > 85);
+
+        foreach (var s in highGrades)
+            Console.WriteLine($"{s.name} - {s.grade}");
+
+        // 2️⃣ Sorted by Grade (Descending)
+        Console.WriteLine("\nSorted by Grade (Descending)");
+        var sorted = studentList
+            .OrderByDescending(s => s.grade);
+
+        foreach (var s in sorted)
+            Console.WriteLine($"{s.name} - {s.grade}");
+
+        // 3️⃣ Student Names Only (Projection)
+        Console.WriteLine("\nStudent Names Only");
+        var names = studentList
+            .Select(s => s.name);
+
+        foreach (var name in names)
+            Console.WriteLine(name);
+
+        // 4️⃣ Average Grade
+        Console.WriteLine($"\nAverage Grade: {studentList.Average(s => s.grade):F2}");
+    }
+}
